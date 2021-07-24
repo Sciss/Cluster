@@ -41,6 +41,4 @@ scala> val tree = KDTree.createWithMaxObservations(dataset, maxObservationsPerTi
 The third class of the library is `Tile`, a list of tiles composing a k-d tree.
 A Tile is composed of two DenseVectors representing the minimums and maximums coordinates in each dimension.
 
-The Scaladoc can be found [here](https://armand.gr/stsc).
-
 Copyright © 2016 Armand Grillet. All rights reserved.
