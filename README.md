@@ -1,8 +1,9 @@
 [![Build Status](https://github.com/Sciss/Cluster/workflows/Scala%20CI/badge.svg?branch=main)](https://github.com/Sciss/Cluster/actions?query=workflow%3A%22Scala+CI%22)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.sciss/cluster_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.sciss/cluster_2.13)
 
 # Cluster
 
-A Scala library for data clustering, utilizing Breeze.
+A Scala library for data clustering, utilizing [Breeze](https://github.com/scalanlp/breeze).
 
 This is an updated fork from [stsc, here](https://github.com/armandgrillet/stsc). The original author is
 Armand Grillet. Updates, extensions and modifications by Hanns Holger Rutz.
@@ -17,6 +18,18 @@ Some clusters found by the implementation on six different datasets with k in \[
 <p align="center">
 <img src="results.png">
 </p>
+
+## requirements / installation
+
+This project builds with sbt against Scala 2.13, 2.12.
+Scala 3 support is currently missing, since Breeze is not published for Scala 3. You can use the library in Scala 3
+by qualifying the dependency via `.cross(CrossVersion.for3Use2_13)`.
+
+To link to this library:
+
+    libraryDependencies += "de.sciss" %% "cluster" % v
+
+The current version `v` is `"0.1.0"`
 
 ## Overview
 

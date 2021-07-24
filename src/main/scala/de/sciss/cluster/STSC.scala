@@ -19,52 +19,22 @@ object STSC {
     */
   case class Result(numClusters: Int, costs: SortedMap[Int, Double], clusters: Array[Int])
 
-  /** Cluster a given dataset using a self-tuning spectral clustering algorithm.
+  /** Clusters a given dataset using a self-tuning spectral clustering algorithm.
     *
-    * @param matrix      the dataset to cluster as a DenseMatrix, each row being an observation with each column representing one dimension
+    * @param matrix      the dataset to cluster as a DenseMatrix, each row being an observation with each column
+    *                    representing one dimension
     * @param minClusters the minimum number of clusters in the dataset
     * @param maxClusters the maximum number of clusters in the dataset
     * @return the best possible number of clusters, a Map of costs (key = number of clusters,
     *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
     */
   def cluster(matrix: DenseMatrix[Double], minClusters: Int = 2, maxClusters: Int = 6): Result = {
-    // Three possible exceptions: empty dataset, minClusters less than 0, minClusters more than maxClusters.
-    if (matrix.rows == 0)           throw new IllegalArgumentException("The dataset does not contains any observations.")
-    if (minClusters < 0)            throw new IllegalArgumentException("The minimum number of clusters has to be positive.")
-    if (minClusters > maxClusters)  throw new IllegalArgumentException("The minimum number of clusters has to be inferior to the maximum number of clusters.")
-
-    clusterMatrix(matrix, minClusters = minClusters, maxClusters = maxClusters)
+    checkParams   (matrix, minClusters = minClusters, maxClusters = maxClusters)
+    clusterMatrix (matrix, minClusters = minClusters, maxClusters = maxClusters)
   }
 
-  /** Cluster a given dataset using a self-tuning spectral clustering algorithm.
-    *
-    * @param path        the path of the dataset to cluster, each row being an observation with each column representing one dimension
-    * @param minClusters the minimum number of clusters in the dataset
-    * @param maxClusters the maximum number of clusters in the dataset
-    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
-    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
-    */
-  def clusterCSV(path: String, minClusters: Int = 2, maxClusters: Int = 6): Result = {
-    val file    = new File(path)
-    val matrix  = breeze.linalg.csvread(file)
-    cluster(matrix, minClusters = minClusters, maxClusters = maxClusters)
-  }
-
-  /** Cluster a matrix. using a self-tuning spectral clustering algorithm. Private function used by public functions to cluster a matrix or a CSV.
-    *
-    * @param matrix      the dataset to cluster as a DenseMatrix, each row being an observation with each column representing one dimension
-    * @param minClusters the minimum number of clusters in the dataset
-    * @param maxClusters the maximum number of clusters in the dataset
-    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
-    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
-    */
-  private[cluster] def clusterMatrix(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
-    // Compute local scale (step 1).
-    val distances = euclideanDistances(matrix)
-    clusterDistances(distances, minClusters = minClusters, maxClusters = maxClusters)
-  }
-
-  /** Cluster a matrix. using a self-tuning spectral clustering algorithm. Private function used by public functions to cluster a matrix or a CSV.
+  /** Clusters a matrix of distances. using a self-tuning spectral clustering algorithm. Private function used by
+    * public functions to cluster a matrix or a CSV.
     *
     * @param distances    square matrix of distances between nodes
     * @param minClusters  the minimum number of clusters in the dataset
@@ -72,7 +42,69 @@ object STSC {
     * @return the best possible number of clusters, a Map of costs (key = number of clusters,
     *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
     */
-  private[cluster] def clusterDistances(distances: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
+  def clusterDistances(distances: DenseMatrix[Double], minClusters: Int = 2, maxClusters: Int = 6): Result = {
+    if (distances.rows != distances.cols) throw new IllegalArgumentException("The distance matrix is not square.")
+    checkParams(distances, minClusters = minClusters, maxClusters = maxClusters)
+    clusterImpl(distances, minClusters = minClusters, maxClusters = maxClusters)
+  }
+
+  private def checkParams(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Unit = {
+    // Three possible exceptions: empty dataset, minClusters less than 0, minClusters more than maxClusters.
+    if (matrix.rows == 0)           throw new IllegalArgumentException("The dataset does not contains any observations.")
+    if (minClusters < 0)            throw new IllegalArgumentException("The minimum number of clusters has to be positive.")
+    if (minClusters > maxClusters)  throw new IllegalArgumentException("The minimum number of clusters has to be inferior to the maximum number of clusters.")
+  }
+
+  /** Clusters a given dataset using a self-tuning spectral clustering algorithm.
+    *
+    * @param path        the path of the dataset to cluster, each row being an observation with each column
+    *                    representing one dimension
+    * @param minClusters the minimum number of clusters in the dataset
+    * @param maxClusters the maximum number of clusters in the dataset
+    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
+    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
+    */
+  def clusterCSV(path: String, minClusters: Int = 2, maxClusters: Int = 6): Result = {
+    val matrix = readCSV(path)
+    cluster(matrix, minClusters = minClusters, maxClusters = maxClusters)
+  }
+
+  /** Reads a matrix from a comma-separated file.
+    *
+    * @param path        the path of the dataset to cluster, each row being an observation with each column
+    *                    representing one dimension
+    * @return the corresponding DenseMatrix
+    */
+  def readCSV(path: String): DenseMatrix[Double] = {
+    val file = new File(path)
+    breeze.linalg.csvread(file)
+  }
+
+  /** Clusters a matrix. using a self-tuning spectral clustering algorithm. Private function used by public
+    * functions to cluster a matrix or a CSV.
+    *
+    * @param matrix      the dataset to cluster as a DenseMatrix, each row being an observation with each column
+    *                    representing one dimension
+    * @param minClusters the minimum number of clusters in the dataset
+    * @param maxClusters the maximum number of clusters in the dataset
+    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
+    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
+    */
+  private[cluster] def clusterMatrix(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
+    val distances = euclideanDistances(matrix)
+    clusterImpl(distances, minClusters = minClusters, maxClusters = maxClusters)
+  }
+
+  /** Clusters a matrix. using a self-tuning spectral clustering algorithm. Private function used by public
+    * functions to cluster a matrix or a CSV.
+    *
+    * @param distances   square matrix of distances between nodes
+    * @param minClusters the minimum number of clusters in the dataset
+    * @param maxClusters the maximum number of clusters in the dataset
+    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
+    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
+    */
+  private[cluster] def clusterImpl(distances: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
     // Compute local scale (step 1).
     val scale = localScale(distances, 7) // In the original paper we use the 7th neighbor to create a local scale.
 
@@ -86,7 +118,8 @@ object STSC {
     val largestEigenvectors = svd(normalizedMatrix).leftVectors(::, 0 until maxClusters)
 
     var cBest = minClusters // The best group number.
-    var currentEigenvectors = largestEigenvectors(::, 0 until minClusters) // We only take the eigenvectors needed for the number of clusters.
+    // We only take the eigenvectors needed for the number of clusters.
+    var currentEigenvectors = largestEigenvectors(::, 0 until minClusters)
     // val tzero = System.nanoTime()
     var (cost, rotatedEigenvectors) = bestRotation(currentEigenvectors)
     // val tone = System.nanoTime()
@@ -95,7 +128,8 @@ object STSC {
 
     for (k <- minClusters until maxClusters) { // We get the cost of stsc for each possible number of clusters.
       val eigenvectorToAdd = largestEigenvectors(::, k).toDenseMatrix.t // One new eigenvector at each turn.
-      currentEigenvectors = DenseMatrix.horzcat(rotatedEigenvectors, eigenvectorToAdd) // We add it to the already rotated eigenvectors.
+      // We add it to the already rotated eigenvectors.
+      currentEigenvectors = DenseMatrix.horzcat(rotatedEigenvectors, eigenvectorToAdd)
       // val t0 = System.nanoTime()
       val (tempCost, tempRotatedEigenvectors) = bestRotation(currentEigenvectors)
       // val t1 = System.nanoTime()
@@ -120,15 +154,17 @@ object STSC {
 
   /** Returns the euclidean distances of a given dense matrix.
     *
-    * @param matrix the matrix that needs to be analyzed, each row being an observation with each column representing one dimension
+    * @param matrix the matrix that needs to be analyzed, each row being an observation with each column
+    *               representing one dimension
     * @return the euclidean distances as a dense matrix
     */
-  private[cluster] def euclideanDistances(matrix: DenseMatrix[Double]): DenseMatrix[Double] = {
+  def euclideanDistances(matrix: DenseMatrix[Double]): DenseMatrix[Double] = {
     val distanceMatrix = DenseMatrix.zeros[Double](matrix.rows, matrix.rows) // Distance matrix, size rows x rows.
 
     for (i <- 0 until matrix.rows) {
       for (j <- i + 1 until matrix.rows) {
-        distanceMatrix(i, j) = euclideanDistance(matrix(i, ::).t, matrix(j, ::).t) // breeze.linalg.functions.euclideanDistance
+        // breeze.linalg.functions.euclideanDistance
+        distanceMatrix(i, j) = euclideanDistance(matrix(i, ::).t, matrix(j, ::).t)
         distanceMatrix(j, i) = distanceMatrix(i, j) // Symmetric matrix.
       }
     }
@@ -136,7 +172,8 @@ object STSC {
     distanceMatrix
   }
 
-  /** Returns the local scale as defined in the original paper, a vector containing the Kth nearest neighbor for each observation.
+  /** Returns the local scale as defined in the original paper, a vector containing the Kth nearest neighbor for
+    * each observation.
     *
     * @param distanceMatrix the distance matrix used to get the Kth nearest neighbor
     * @param k              k, always 7 in the original paper
@@ -150,7 +187,8 @@ object STSC {
 
       for (i <- 0 until distanceMatrix.cols) {
         val sortedDistances = distanceMatrix(::, i).toArray.sorted // Ordered distances.
-        localScale(i) = sortedDistances(k) // Kth nearest distance, the 0th neighbor is always 0 and sortedVector(1) is the first neighbor
+        // Kth nearest distance, the 0th neighbor is always 0 and sortedVector(1) is the first neighbor
+        localScale(i) = sortedDistances(k)
       }
 
       localScale
@@ -159,18 +197,20 @@ object STSC {
   /** Returns a locally scaled affinity matrix using a distance matrix and a local scale
     *
     * @param distanceMatrix the distance matrix
-    * @param localScale     the local scale, the distance of the Kth nearest neighbor for each observation as a dense vector
+    * @param localScale     the local scale, the distance of the Kth nearest neighbor for each observation as
+    *                       a dense vector
     * @return the locally scaled affinity matrix
     */
   private[cluster] def locallyScaledAffinityMatrix(distanceMatrix: DenseMatrix[Double],
                                                    localScale: DenseVector[Double]): DenseMatrix[Double] = {
-    val affinityMatrix = DenseMatrix.zeros[Double](distanceMatrix.rows, distanceMatrix.cols) // Distance matrix, size rows x cols.
+    // Distance matrix, size rows x cols.
+    val affinityMatrix = DenseMatrix.zeros[Double](distanceMatrix.rows, distanceMatrix.cols)
 
     for (i <- 0 until distanceMatrix.rows) {
       for (j <- i + 1 until distanceMatrix.rows) {
-        affinityMatrix(i, j) = -pow(distanceMatrix(i, j), 2) // -d(si, sj)²
+        affinityMatrix(i, j) = -pow(distanceMatrix(i, j), 2)    // -d(si, sj)²
         affinityMatrix(i, j) /= (localScale(i) * localScale(j)) // -d(si, sj)² / lambi * lambj
-        affinityMatrix(i, j) = exp(affinityMatrix(i, j)) // exp(-d(si, sj)² / lambi * lambj)
+        affinityMatrix(i, j) = exp(affinityMatrix(i, j))        // exp(-d(si, sj)² / lambi * lambj)
         affinityMatrix(j, i) = affinityMatrix(i, j)
       }
     }
@@ -184,8 +224,9 @@ object STSC {
     * @return the normalized matrix
     */
   private[cluster] def normalizedAffinityMatrix(scaledMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
-    val diagonalVector = DenseVector.tabulate(scaledMatrix.rows) { i => 1 / sqrt(sum(scaledMatrix(i, ::))) } // Sum of each row, then power -0.5.
-    val normalizedMatrix = DenseMatrix.zeros[Double](scaledMatrix.rows, scaledMatrix.cols)
+    // Sum of each row, then power -0.5.
+    val normalizedMatrix  = DenseMatrix.zeros[Double](scaledMatrix.rows, scaledMatrix.cols)
+    val diagonalVector    = DenseVector.tabulate(scaledMatrix.rows)(i => 1 / sqrt(sum(scaledMatrix(i, ::))))
 
     for (i <- 0 until normalizedMatrix.rows) {
       for (j <- i + 1 until normalizedMatrix.cols) {
@@ -197,7 +238,8 @@ object STSC {
     normalizedMatrix
   }
 
-  /** Step 5 of the self-tuning spectral clustering algorithm, recover the rotation R which best aligns the eigenvectors.
+  /** Step 5 of the self-tuning spectral clustering algorithm, recover the rotation R which best aligns the
+    * eigenvectors.
     *
     * @param eigenvectors the eigenvectors
     * @return the cost of the best rotation and the rotation as a DenseMatrix.
@@ -239,7 +281,7 @@ object STSC {
     (cost, rotatedEigenvectors)
   }
 
-  /** Return the cost of a given rotation, follow the computation in the original paper code.
+  /** Returns the cost of a given rotation, follow the computation in the original paper code.
     *
     * @param matrix the rotation to analyze
     * @return the cost, the bigger the better (generally less than 1)
@@ -272,8 +314,8 @@ object STSC {
     val ij = List.fill(theta.length) {
       j += 1
       if (j >= matrix.cols) {
-          i += 1
-          j = i + 1
+        i += 1
+        j = i + 1
       }
       (i, j)
     }
