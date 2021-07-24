@@ -1,6 +1,11 @@
+[![Build Status](https://github.com/Sciss/stsc/workflows/Scala%20CI/badge.svg?branch=main)](https://github.com/Sciss/stsc/actions?query=workflow%3A%22Scala+CI%22)
+
 # stsc
 
-An implementation of the Self-Tuning Spectral Clustering algorithm, and more. Based on the paper [*Self Tuning Spectral Clustering STSC*](http://www.vision.caltech.edu/lihi/Demos/SelfTuningClustering.html).
+(updated fork from [here](https://github.com/armandgrillet/stsc))
+
+An implementation of the Self-Tuning Spectral Clustering algorithm, and more. Based on the paper 
+[*Self Tuning Spectral Clustering STSC*](http://www.vision.caltech.edu/lihi/Demos/SelfTuningClustering.html).
 
 Some clusters found by the implementation on six different datasets with k in [2, 6]:
 
@@ -19,9 +24,11 @@ val (cBest, costs, clusters) = STSC.cluster(dataset)
 val bestGroupNumber = STSC.cluster(dataset, 2, 10)._1
 ````
 
-cBest is the most likely number of clusters in the dataset. It will always be between the minimum and maximum value of k.
+cBest is the most likely number of clusters in the dataset. It will always be between the minimum and maximum 
+value of k.
 costs is a map with the cost returned for each possible number of clusters k.
-clusters is an Array of Int with a length equals to the number of rows in the dataset, clusters(i) represents the cluster where should be the observation i in the dataset.
+clusters is an Array of Int with a length equals to the number of rows in the dataset, clusters(i) represents the 
+cluster where should be the observation i in the dataset.
 
 If you include `gr.armand.stsc.KDTree`, you can also create a k-d tree to divide a dataset:
 
