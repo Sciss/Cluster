@@ -1,9 +1,9 @@
-package stsc.sequential.unit.STSC
+package de.sciss.stsc.sequential.unit.STSC
 
 import breeze.linalg.DenseMatrix
+import de.sciss.stsc.STSC
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import stsc.STSC
 
 class NormalizedMatrixTest extends AnyFlatSpec with Matchers {
   def roundAt5(n: Double): Double = {

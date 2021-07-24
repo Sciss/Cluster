@@ -1,4 +1,4 @@
-package stsc
+package de.sciss.stsc
 
 case class Node(value: Tile, left: Node = null, right: Node = null) {
   require(left  == null || left .value.mins.length == value.mins.length, "The value of the tree and its left child must be in the same dimensions")

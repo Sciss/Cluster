@@ -1,9 +1,9 @@
-package stsc.sequential.unit.KDTree
+package de.sciss.stsc.sequential.unit.KDTree
 
 import breeze.linalg.DenseMatrix
+import de.sciss.stsc.KDTree
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import stsc.KDTree
 
 import java.io.File
 

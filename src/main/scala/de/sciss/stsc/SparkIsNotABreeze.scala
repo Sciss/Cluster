@@ -1,4 +1,4 @@
-package stsc
+package de.sciss.stsc
 
 import breeze.linalg.{DenseMatrix, DenseVector, Transpose, sum}
 

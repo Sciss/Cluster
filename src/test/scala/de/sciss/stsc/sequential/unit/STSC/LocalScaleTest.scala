@@ -1,9 +1,9 @@
-package stsc.sequential.unit.STSC
+package de.sciss.stsc.sequential.unit.STSC
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import de.sciss.stsc.STSC
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import stsc.STSC
 
 class LocalScaleTest extends AnyFlatSpec with Matchers {
   "The local scale " should "work with a 4x4 matrix and k = 5 (k is volontarely too big)" in {

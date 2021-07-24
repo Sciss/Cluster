@@ -1,10 +1,10 @@
-package stsc.sequential.unit.STSC
+package de.sciss.stsc.sequential.unit.STSC
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
+import de.sciss.stsc.STSC
 import org.scalameter._
 import org.scalatest.funsuite.AnyFunSuite
-import stsc.STSC
 
 class STSCMinDistanceBenchmark extends AnyFunSuite {
   def compressDenseVector(dv: Array[Int], values: Int): DenseVector[Int] = {
@@ -30,7 +30,7 @@ class STSCMinDistanceBenchmark extends AnyFunSuite {
         val sample2 = Gaussian(distance, 1).sample(100)
         val samplesMatrix = DenseMatrix.zeros[Double](sample1.length * 2, 1)
         samplesMatrix(::, 0) := DenseVector((sample1 ++ sample2).toArray)
-        z = compressDenseVector(STSC.cluster(samplesMatrix)._3, 2)
+        z = compressDenseVector(STSC.cluster(samplesMatrix).clusters, 2)
         println(distance)
         distance -= 1
       }

@@ -2,7 +2,7 @@
 
 # stsc
 
-(updated fork from [here](https://github.com/armandgrillet/stsc))
+Updated fork from [here](https://github.com/armandgrillet/stsc). Base package is now `de.sciss.stsc`.
 
 An implementation of the Self-Tuning Spectral Clustering algorithm, and more. Based on the paper 
 [*Self Tuning Spectral Clustering STSC*](http://www.vision.caltech.edu/lihi/Demos/SelfTuningClustering.html).
@@ -15,10 +15,10 @@ Some clusters found by the implementation on six different datasets with k in [2
 
 ## Overview
 
-The main class to use is the self-tuning spectral clustering algorithm, `gr.armand.stsc.STSC`:
+The main class to use is the self-tuning spectral clustering algorithm, `de.sciss.stsc.STSC`:
 
 ```scala
-import gr.armand.stsc.STSC
+import de.sciss.stsc.STSC
 // Your code to load the dataset and make it a DenseMatrix.
 val (cBest, costs, clusters) = STSC.cluster(dataset)
 // Two optional parameters, the minimum and maximum value of k. By default: 2 and 6.
@@ -31,10 +31,10 @@ costs is a map with the cost returned for each possible number of clusters k.
 clusters is an Array of Int with a length equals to the number of rows in the dataset, clusters(i) represents the 
 cluster where should be the observation i in the dataset.
 
-If you include `gr.armand.stsc.KDTree`, you can also create a k-d tree to divide a dataset:
+If you include `de.sciss.stsc.KDTree`, you can also create a k-d tree to divide a dataset:
 
 ```scala
-scala> import gr.armand.stsc.KDTree
+scala> import de.sciss.stsc.KDTree
 scala> val tree = KDTree.createWithMaxObservations(dataset, maxObservationsPerTile, tileBorderWidth)
 ```
 

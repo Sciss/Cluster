@@ -1,10 +1,10 @@
-package stsc.sequential.unit.STSC
+package de.sciss.stsc.sequential.unit.STSC
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.{Gaussian, MultivariateGaussian}
+import de.sciss.stsc.STSC
 import org.scalameter._
 import org.scalatest.funsuite.AnyFunSuite
-import stsc.STSC
 
 class STSCBenchmark extends AnyFunSuite {
   test("Should work with 2 clusters of 100 observations in 1 dimension") {
@@ -14,7 +14,7 @@ class STSCBenchmark extends AnyFunSuite {
     samplesMatrix(::, 0) := DenseVector((sample1 ++ sample2).toArray)
     val time = measure {
       val result = STSC.cluster(samplesMatrix)
-      println(result._1)
+      println(result.numClusters)
     }
     println("Total time : " + time)
   }
@@ -49,7 +49,7 @@ class STSCBenchmark extends AnyFunSuite {
     val samplesMatrix = DenseMatrix.vertcat(sample1, sample2)
     val time = measure {
       val result = STSC.cluster(samplesMatrix)
-      println(result._1)
+      println(result.numClusters)
     }
     println("Total time : " + time)
   }

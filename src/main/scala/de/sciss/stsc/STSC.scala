@@ -1,4 +1,4 @@
-package stsc
+package de.sciss.stsc
 
 import breeze.linalg.functions.euclideanDistance
 import breeze.linalg.{*, DenseMatrix, DenseVector, argmax, max, sum, svd}
@@ -10,16 +10,24 @@ import scala.collection.mutable
 import scala.math.exp
 import scala.util.control.Breaks.{break, breakable}
 
-/** Factory for gr.armand.stsc.STSC instances. */
 object STSC {
+  /** Clustering result.
+    *
+    * @param numClusters  the number of clusters detected
+    * @param costs        a Map of costs (key = number of clusters, value = cost for this number of clusters)
+    * @param clusters     the clusters obtained for the input nodes (running from zero until `numClusters`)
+    */
+  case class Result(numClusters: Int, costs: SortedMap[Int, Double], clusters: Array[Int])
+
   /** Cluster a given dataset using a self-tuning spectral clustering algorithm.
     *
     * @param matrix      the dataset to cluster as a DenseMatrix, each row being an observation with each column representing one dimension
     * @param minClusters the minimum number of clusters in the dataset
     * @param maxClusters the maximum number of clusters in the dataset
-    * @return the best possible numer of clusters, a Map of costs (key = number of clusters, value = cost for this number of clusters) and the clusters obtained for the best possible number.
+    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
+    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
     */
-  def cluster(matrix: DenseMatrix[Double], minClusters: Int = 2, maxClusters: Int = 6): (Int, SortedMap[Int, Double], Array[Int]) = {
+  def cluster(matrix: DenseMatrix[Double], minClusters: Int = 2, maxClusters: Int = 6): Result = {
     // Three possible exceptions: empty dataset, minClusters less than 0, minClusters more than maxClusters.
     if (matrix.rows == 0) {
       throw new IllegalArgumentException("The dataset does not contains any observations.")
@@ -39,11 +47,12 @@ object STSC {
     * @param path        the path of the dataset to cluster, each row being an observation with each column representing one dimension
     * @param minClusters the minimum number of clusters in the dataset
     * @param maxClusters the maximum number of clusters in the dataset
-    * @return the best possible numer of clusters, a Map of costs (key = number of clusters, value = cost for this number of clusters) and the clusters obtained for the best possible number.
+    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
+    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
     */
-  def clusterCSV(path: String, minClusters: Int = 2, maxClusters: Int = 6): (Int, SortedMap[Int, Double], Array[Int]) = {
-    val file = new File(path)
-    val matrix = breeze.linalg.csvread(file)
+  def clusterCSV(path: String, minClusters: Int = 2, maxClusters: Int = 6): Result = {
+    val file    = new File(path)
+    val matrix  = breeze.linalg.csvread(file)
     cluster(matrix, minClusters, maxClusters)
   }
 
@@ -52,9 +61,10 @@ object STSC {
     * @param matrix      the dataset to cluster as a DenseMatrix, each row being an observation with each column representing one dimension
     * @param minClusters the minimum number of clusters in the dataset
     * @param maxClusters the maximum number of clusters in the dataset
-    * @return the best possible numer of clusters, a Map of costs (key = number of clusters, value = cost for this number of clusters) and the clusters obtained for the best possible number.
+    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
+    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
     */
-  private[stsc] def clusterMatrix(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): (Int, SortedMap[Int, Double], Array[Int]) = {
+  private[stsc] def clusterMatrix(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
     // Compute local scale (step 1).
     val distances = euclideanDistances(matrix)
     val scale = localScale(distances, 7) // In the original paper we use the 7th neighbor to create a local scale.
@@ -96,8 +106,9 @@ object STSC {
 
     val orderedCosts = SortedMap(costs.toSeq: _*) // Order the costs.
     val absoluteRotatedEigenvectors = SparkIsNotABreeze.getSomeAbs(bestRotatedEigenvectors)
-    val z = argmax(absoluteRotatedEigenvectors(*, ::)).toArray // The alignment result (step 8), conversion to array due to https://issues.scala-lang.org/browse/SI-9578
-    (cBest, orderedCosts, z)
+    // The alignment result (step 8), conversion to array due to https://issues.scala-lang.org/browse/SI-9578
+    val z = argmax(absoluteRotatedEigenvectors(*, ::)).toArray
+    Result(cBest, orderedCosts, z)
   }
 
   /** Returns the euclidean distances of a given dense matrix.
@@ -234,7 +245,8 @@ object STSC {
     sum(sumVector / maxVector) // Sum of the sum of each row divided by the max of each row.
   }
 
-  private[stsc] def numericalQualityGradient(matrix: DenseMatrix[Double], theta: DenseVector[Double], k: Int, h: Double): Double = {
+  private[stsc] def numericalQualityGradient(matrix: DenseMatrix[Double], theta: DenseVector[Double],
+                                             k: Int, h: Double): Double = {
     theta(k) = theta(k) + h
     val upRotation = givensRotation(matrix, theta)
     theta(k) = theta(k) - 2 * h // -2 * because we cancel the previous operation.

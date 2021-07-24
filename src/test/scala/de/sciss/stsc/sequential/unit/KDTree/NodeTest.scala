@@ -1,9 +1,9 @@
-package stsc.sequential.unit.KDTree
+package de.sciss.stsc.sequential.unit.KDTree
 
 import breeze.linalg.DenseVector
+import de.sciss.stsc.{Node, Tile}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import stsc.{Node, Tile}
 
 class NodeTest extends AnyFlatSpec with Matchers {
   "The tile tree" should "require the value and children's values to be in the same dimensions" in {

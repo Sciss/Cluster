@@ -1,8 +1,21 @@
+lazy val baseName       = "stsc"
+lazy val baseNameL      = baseName.toLowerCase
+lazy val projectVersion = "0.1.0-SNAPSHOT"
+
+lazy val gitRepoHost    = "github.com"
+lazy val gitRepoUser    = "Sciss"
+
+ThisBuild / version       := projectVersion
+ThisBuild / organization  := "de.sciss"
+ThisBuild / versionScheme := Some("pvp")
+
 lazy val root = project.in(file("."))
+  .settings(publishSettings)
   .settings(
-    organization  := "gr.armand",
-    name          := "stsc",
-    version       := "1.0",
+    name          := baseName,
+    homepage      := Some(url(s"https://$gitRepoHost/$gitRepoUser/$baseName")),
+    description   := "A framework for creating and managing ScalaCollider based sound processes",
+    licenses      := Seq("LGPL v2.1+" -> url("http://www.gnu.org/licenses/lgpl-2.1.txt")),
     scalaVersion  := "2.13.6",
     scalacOptions += "-deprecation",
     libraryDependencies  ++= Seq(
@@ -25,3 +38,32 @@ lazy val deps = new {
     val scalaTest  = "3.2.9"
   }
 }
+
+// ---- publishing ----
+
+lazy val publishSettings = Seq(
+  publishMavenStyle := true,
+  Test / publishArtifact := false,
+  pomIncludeRepository := { _ => false },
+  developers := List(
+    Developer(
+      id    = "armandgrillet",
+      name  = "Armand Grillet",
+      email = "armand.grillet@gmail.com",
+      url   = url("https://armand.gr/")
+    ),
+    Developer(
+      id    = "sciss",
+      name  = "Hanns Holger Rutz",
+      email = "contact@sciss.de",
+      url   = url("https://www.sciss.de")
+    )
+  ),
+  scmInfo := {
+    Some(ScmInfo(
+      url(s"https://$gitRepoHost/$gitRepoUser/$baseName"),
+      s"scm:git@$gitRepoHost:$gitRepoUser/$baseName.git"
+    ))
+  },
+)
+

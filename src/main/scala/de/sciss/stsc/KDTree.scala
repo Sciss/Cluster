@@ -1,4 +1,4 @@
-package stsc
+package de.sciss.stsc
 
 import breeze.linalg.{*, BitVector, DenseMatrix, DenseVector, argmax, csvread, csvwrite, max, min, sum}
 import breeze.numerics.abs

@@ -1,9 +1,10 @@
-package stsc.sequential.unit.STSC
+package de.sciss.stsc.sequential.unit.STSC
 
 import breeze.linalg.DenseVector
+import de.sciss.stsc.STSC
+import de.sciss.stsc.STSC.Result
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import stsc.STSC
 
 import java.io.File
 
@@ -19,7 +20,7 @@ class STSCTest extends AnyFlatSpec with Matchers {
     val dataPath = getClass.getResource("/near.csv").getPath
     val dataset = new File(dataPath)
     val matrix = breeze.linalg.csvread(dataset)
-    val (bestK, _ /*clustersQualities*/, correctClusters) = STSC.cluster(matrix, 2, 2)
+    val Result(bestK, _ /*clustersQualities*/, correctClusters) = STSC.cluster(matrix, 2, 2)
 
     bestK should be(2)
     correctClusters should not be DenseVector.zeros[Int](matrix.rows)
@@ -29,7 +30,7 @@ class STSCTest extends AnyFlatSpec with Matchers {
   // Global tests.
   "The dataset 0" should "be correctly clustered" in {
     val dataPath = getClass.getResource("/0.csv").getPath
-    val (bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
+    val Result(bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
     println(clustersQualities)
     bestK should be(3)
     compressCorrectClusters(correctClusters, 6) should be(Array(61, 99, 139))
@@ -37,7 +38,7 @@ class STSCTest extends AnyFlatSpec with Matchers {
 
   "The dataset 1" should "be correctly clustered" in {
     val dataPath = getClass.getResource("/1.csv").getPath
-    val (bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
+    val Result(bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
     println(clustersQualities)
     bestK should be(3)
     compressCorrectClusters(correctClusters, 6) should be(Array(95, 102, 106))
@@ -45,7 +46,7 @@ class STSCTest extends AnyFlatSpec with Matchers {
 
   "The dataset 2" should "be correctly clustered" in {
     val dataPath = getClass.getResource("/2.csv").getPath
-    val (bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
+    val Result(bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
     println(clustersQualities)
     bestK should be(3)
     compressCorrectClusters(correctClusters, 6) should be(Array(73, 75, 118))
@@ -53,7 +54,7 @@ class STSCTest extends AnyFlatSpec with Matchers {
 
   "The dataset 3" should "be correctly clustered" in {
     val dataPath = getClass.getResource("/3.csv").getPath
-    val (bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
+    val Result(bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
     println(clustersQualities)
     bestK should be(5)
     compressCorrectClusters(correctClusters, 6) should be(Array(109, 111, 116, 136, 150))
@@ -61,7 +62,7 @@ class STSCTest extends AnyFlatSpec with Matchers {
 
   "The dataset 4" should "be correctly clustered" in {
     val dataPath = getClass.getResource("/4.csv").getPath
-    val (bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
+    val Result(bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
     println(clustersQualities)
     bestK should be(4)
     compressCorrectClusters(correctClusters, 6) should be(Array(117, 122, 123, 150))
@@ -69,7 +70,7 @@ class STSCTest extends AnyFlatSpec with Matchers {
 
   "The dataset 5" should "be correctly clustered" in {
     val dataPath = getClass.getResource("/5.csv").getPath
-    val (bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
+    val Result(bestK, clustersQualities, correctClusters) = STSC.clusterCSV(dataPath)
     println(clustersQualities)
     bestK should be(3)
     compressCorrectClusters(correctClusters, 6) should be(Array(56, 82, 100))

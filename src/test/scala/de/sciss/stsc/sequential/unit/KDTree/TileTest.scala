@@ -1,9 +1,9 @@
-package stsc.sequential.unit.KDTree
+package de.sciss.stsc.sequential.unit.KDTree
 
 import breeze.linalg.DenseVector
+import de.sciss.stsc.Tile
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import stsc.Tile
 
 class TileTest extends AnyFlatSpec with Matchers {
   "The tile" should "work" in {
