@@ -1,4 +1,4 @@
-package de.sciss.stsc.sequential.unit
+package de.sciss.stsc.test
 
 import breeze.linalg.DenseMatrix
 import de.sciss.stsc.STSC
@@ -8,16 +8,16 @@ import java.awt.geom.Ellipse2D
 import java.awt.{Color, Dimension, EventQueue, Graphics, Graphics2D, GridLayout, RenderingHints}
 import java.io.File
 import javax.swing.{BorderFactory, JComponent, JFrame, JPanel, WindowConstants}
-import math.{max, min}
+import scala.math.{max, min}
 
 object Visualize {
   case class Data(input: DenseMatrix[Double], numClusters: Int, clusters: Array[Int])
 
   def main(args: Array[String]): Unit = {
     val dataSq = Seq.tabulate(6) { di =>
-      val dataPath  = getClass.getResource(s"/$di.csv").getPath
-      val file      = new File(dataPath)
-      val matrix    = breeze.linalg.csvread(file)
+      val dataPath = getClass.getResource(s"/$di.csv").getPath
+      val file = new File(dataPath)
+      val matrix = breeze.linalg.csvread(file)
       val Result(numClusters, _, clusters) = STSC.cluster(matrix)
       Data(matrix, numClusters, clusters)
     }
@@ -30,8 +30,8 @@ object Visualize {
     p.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8))
     dataSq.foreach { d =>
       import d._
-      val cOff    = if (numClusters == 3) 2 else 0
-      val colors  = Array.tabulate(numClusters)(i => Color.getHSBColor((i + cOff).toFloat / numClusters, 1f, 1f))
+      val cOff = if (numClusters == 3) 2 else 0
+      val colors = Array.tabulate(numClusters)(i => Color.getHSBColor((i + cOff).toFloat / numClusters, 1f, 1f))
       var minX = Double.PositiveInfinity
       var maxX = Double.NegativeInfinity
       var minY = Double.PositiveInfinity
@@ -39,10 +39,10 @@ object Visualize {
       for (ri <- 0 until input.rows) {
         val x = input(ri, 0)
         val y = input(ri, 1)
-        minX  = min(minX, x)
-        maxX  = max(maxX, x)
-        minY  = min(minY, y)
-        maxY  = max(maxY, y)
+        minX = min(minX, x)
+        maxX = max(maxX, x)
+        minY = min(minY, y)
+        maxY = max(maxY, y)
       }
       // println(s"minX $minX, minY $minY, maxX $maxX, maxY $maxY")
 
@@ -56,8 +56,8 @@ object Visualize {
         override def paintComponent(g: Graphics): Unit = {
           super.paintComponent(g)
           val g2 = g.asInstanceOf[Graphics2D]
-          g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING   , RenderingHints.VALUE_ANTIALIAS_ON )
-          g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL , RenderingHints.VALUE_STROKE_PURE  )
+          g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+          g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE)
           for (ri <- 0 until input.rows) {
             val x = (input(ri, 0) - minX) / (maxX - minX)
             val y = (input(ri, 1) - minY) / (maxY - minY)

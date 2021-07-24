@@ -1,4 +1,4 @@
-package de.sciss.stsc.sequential.unit.STSC
+package de.sciss.stsc.test.st
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import de.sciss.stsc.STSC
@@ -6,7 +6,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class LocalScaleTest extends AnyFlatSpec with Matchers {
-  "The local scale " should "work with a 4x4 matrix and k = 5 (k is volontarely too big)" in {
+  "The local scale " should "work with a 4x4 matrix and k = 5 (k is voluntarily too big)" in {
     val distanceMatrix = DenseMatrix((0.0, 4.0, 5.0, 3.0), (4.0, 0.0, 3.0, 5.0), (5.0, 3.0, 0.0, 4.0), (3.0, 5.0, 4.0, 0.0))
     val e = intercept[IllegalArgumentException] {
       STSC.localScale(distanceMatrix, 5)

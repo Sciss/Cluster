@@ -1,4 +1,4 @@
-package de.sciss.stsc.sequential.unit.STSC
+package de.sciss.stsc.test.st
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian

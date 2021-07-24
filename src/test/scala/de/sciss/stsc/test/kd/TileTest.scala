@@ -1,4 +1,4 @@
-package de.sciss.stsc.sequential.unit.KDTree
+package de.sciss.stsc.test.kd
 
 import breeze.linalg.DenseVector
 import de.sciss.stsc.Tile

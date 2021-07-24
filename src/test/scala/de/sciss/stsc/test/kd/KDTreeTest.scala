@@ -1,4 +1,4 @@
-package de.sciss.stsc.sequential.unit.KDTree
+package de.sciss.stsc.test.kd
 
 import breeze.linalg.DenseMatrix
 import de.sciss.stsc.KDTree

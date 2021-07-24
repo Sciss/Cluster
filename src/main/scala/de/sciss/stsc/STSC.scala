@@ -29,17 +29,11 @@ object STSC {
     */
   def cluster(matrix: DenseMatrix[Double], minClusters: Int = 2, maxClusters: Int = 6): Result = {
     // Three possible exceptions: empty dataset, minClusters less than 0, minClusters more than maxClusters.
-    if (matrix.rows == 0) {
-      throw new IllegalArgumentException("The dataset does not contains any observations.")
-    }
-    if (minClusters < 0) {
-      throw new IllegalArgumentException("The minimum number of clusters has to be positive.")
-    }
-    if (minClusters > maxClusters) {
-      throw new IllegalArgumentException("The minimum number of clusters has to be inferior to the maximum number of clusters.")
-    }
+    if (matrix.rows == 0)           throw new IllegalArgumentException("The dataset does not contains any observations.")
+    if (minClusters < 0)            throw new IllegalArgumentException("The minimum number of clusters has to be positive.")
+    if (minClusters > maxClusters)  throw new IllegalArgumentException("The minimum number of clusters has to be inferior to the maximum number of clusters.")
 
-    clusterMatrix(matrix, minClusters, maxClusters)
+    clusterMatrix(matrix, minClusters = minClusters, maxClusters = maxClusters)
   }
 
   /** Cluster a given dataset using a self-tuning spectral clustering algorithm.
@@ -53,7 +47,7 @@ object STSC {
   def clusterCSV(path: String, minClusters: Int = 2, maxClusters: Int = 6): Result = {
     val file    = new File(path)
     val matrix  = breeze.linalg.csvread(file)
-    cluster(matrix, minClusters, maxClusters)
+    cluster(matrix, minClusters = minClusters, maxClusters = maxClusters)
   }
 
   /** Cluster a matrix. using a self-tuning spectral clustering algorithm. Private function used by public functions to cluster a matrix or a CSV.
@@ -67,6 +61,19 @@ object STSC {
   private[stsc] def clusterMatrix(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
     // Compute local scale (step 1).
     val distances = euclideanDistances(matrix)
+    clusterDistances(distances, minClusters = minClusters, maxClusters = maxClusters)
+  }
+
+  /** Cluster a matrix. using a self-tuning spectral clustering algorithm. Private function used by public functions to cluster a matrix or a CSV.
+    *
+    * @param distances    square matrix of distances between nodes
+    * @param minClusters  the minimum number of clusters in the dataset
+    * @param maxClusters  the maximum number of clusters in the dataset
+    * @return the best possible number of clusters, a Map of costs (key = number of clusters,
+    *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
+    */
+  private[stsc] def clusterDistances(distances: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
+    // Compute local scale (step 1).
     val scale = localScale(distances, 7) // In the original paper we use the 7th neighbor to create a local scale.
 
     // Build locally scaled affinity matrix (step 2).
@@ -133,9 +140,9 @@ object STSC {
     *
     * @param distanceMatrix the distance matrix used to get the Kth nearest neighbor
     * @param k              k, always 7 in the original paper
-    * @return the local scale, the dictance of the Kth nearest neighbor for each observation as a dense vector
+    * @return the local scale, the distance of the Kth nearest neighbor for each observation as a dense vector
     */
-  private[stsc] def localScale(distanceMatrix: DenseMatrix[Double], k: Int): DenseVector[Double] = {
+  private[stsc] def localScale(distanceMatrix: DenseMatrix[Double], k: Int): DenseVector[Double] =
     if (k > distanceMatrix.cols - 1) {
       throw new IllegalArgumentException("Not enough observations (" + distanceMatrix.cols + ") for k (" + k + ").")
     } else {
@@ -148,12 +155,11 @@ object STSC {
 
       localScale
     }
-  }
 
   /** Returns a locally scaled affinity matrix using a distance matrix and a local scale
     *
     * @param distanceMatrix the distance matrix
-    * @param localScale     the local scale, the dictance of the Kth nearest neighbor for each observation as a dense vector
+    * @param localScale     the local scale, the distance of the Kth nearest neighbor for each observation as a dense vector
     * @return the locally scaled affinity matrix
     */
   private[stsc] def locallyScaledAffinityMatrix(distanceMatrix: DenseMatrix[Double],

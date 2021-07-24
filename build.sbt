@@ -12,27 +12,33 @@ ThisBuild / versionScheme := Some("pvp")
 lazy val root = project.in(file("."))
   .settings(publishSettings)
   .settings(
-    name          := baseName,
-    homepage      := Some(url(s"https://$gitRepoHost/$gitRepoUser/$baseName")),
-    description   := "A framework for creating and managing ScalaCollider based sound processes",
-    licenses      := Seq("LGPL v2.1+" -> url("http://www.gnu.org/licenses/lgpl-2.1.txt")),
-    scalaVersion  := "2.13.6",
+    name                := baseName,
+    homepage            := Some(url(s"https://$gitRepoHost/$gitRepoUser/$baseName")),
+    description         := "A framework for creating and managing ScalaCollider based sound processes",
+    licenses            := Seq("LGPL v2.1+" -> url("http://www.gnu.org/licenses/lgpl-2.1.txt")),
+    scalaVersion        := "2.13.6",
+    crossScalaVersions  := Seq(/*"3.0.1",*/ "2.13.6", "2.12.14"), // Breeze currently not available for Scala 3
     scalacOptions += "-deprecation",
-    libraryDependencies  ++= Seq(
-      "org.scalanlp"      %% "breeze"         % deps.main.breeze,
-      "org.scalanlp"      %% "breeze-natives" % deps.main.breeze,
-      "org.scalatest"     %% "scalatest"      % deps.test.scalaTest   % Test,
-      "com.storm-enroute" %% "scalameter"     % deps.main.scalaMeter  % Test, // Benchmarks
-    ),
+    libraryDependencies ++= {
+      val scalaMeter = if (scalaVersion.value.startsWith("2.12.")) deps.main.scalaMeter_2_12 else deps.main.scalaMeter
+      Seq(
+        "org.scalanlp"      %% "breeze"         % deps.main.breeze,
+        "org.scalanlp"      %% "breeze-natives" % deps.main.breeze,
+        "org.scalatest"     %% "scalatest"      % deps.test.scalaTest % Test,
+        "com.storm-enroute" %% "scalameter"     % scalaMeter          % Test, // Benchmarks
+      )
+    },
     // Tests
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
-    logBuffered := false
+    logBuffered := false,
+//    Test / parallelExecution := false,
   )
 
 lazy val deps = new {
   val main = new {
-    val breeze     = "1.2"
-    val scalaMeter = "0.21"
+    val breeze          = "1.2"
+    val scalaMeter      = "0.21"
+    val scalaMeter_2_12 = "0.19"
   }
   val test = new {
     val scalaTest  = "3.2.9"
