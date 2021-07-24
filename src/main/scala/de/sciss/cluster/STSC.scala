@@ -1,4 +1,4 @@
-package de.sciss.stsc
+package de.sciss.cluster
 
 import breeze.linalg.functions.euclideanDistance
 import breeze.linalg.{*, DenseMatrix, DenseVector, argmax, max, sum, svd}
@@ -58,7 +58,7 @@ object STSC {
     * @return the best possible number of clusters, a Map of costs (key = number of clusters,
     *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
     */
-  private[stsc] def clusterMatrix(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
+  private[cluster] def clusterMatrix(matrix: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
     // Compute local scale (step 1).
     val distances = euclideanDistances(matrix)
     clusterDistances(distances, minClusters = minClusters, maxClusters = maxClusters)
@@ -72,7 +72,7 @@ object STSC {
     * @return the best possible number of clusters, a Map of costs (key = number of clusters,
     *         value = cost for this number of clusters) and the clusters obtained for the best possible number.
     */
-  private[stsc] def clusterDistances(distances: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
+  private[cluster] def clusterDistances(distances: DenseMatrix[Double], minClusters: Int, maxClusters: Int): Result = {
     // Compute local scale (step 1).
     val scale = localScale(distances, 7) // In the original paper we use the 7th neighbor to create a local scale.
 
@@ -123,7 +123,7 @@ object STSC {
     * @param matrix the matrix that needs to be analyzed, each row being an observation with each column representing one dimension
     * @return the euclidean distances as a dense matrix
     */
-  private[stsc] def euclideanDistances(matrix: DenseMatrix[Double]): DenseMatrix[Double] = {
+  private[cluster] def euclideanDistances(matrix: DenseMatrix[Double]): DenseMatrix[Double] = {
     val distanceMatrix = DenseMatrix.zeros[Double](matrix.rows, matrix.rows) // Distance matrix, size rows x rows.
 
     for (i <- 0 until matrix.rows) {
@@ -142,7 +142,7 @@ object STSC {
     * @param k              k, always 7 in the original paper
     * @return the local scale, the distance of the Kth nearest neighbor for each observation as a dense vector
     */
-  private[stsc] def localScale(distanceMatrix: DenseMatrix[Double], k: Int): DenseVector[Double] =
+  private[cluster] def localScale(distanceMatrix: DenseMatrix[Double], k: Int): DenseVector[Double] =
     if (k > distanceMatrix.cols - 1) {
       throw new IllegalArgumentException("Not enough observations (" + distanceMatrix.cols + ") for k (" + k + ").")
     } else {
@@ -162,8 +162,8 @@ object STSC {
     * @param localScale     the local scale, the distance of the Kth nearest neighbor for each observation as a dense vector
     * @return the locally scaled affinity matrix
     */
-  private[stsc] def locallyScaledAffinityMatrix(distanceMatrix: DenseMatrix[Double],
-                                                localScale: DenseVector[Double]): DenseMatrix[Double] = {
+  private[cluster] def locallyScaledAffinityMatrix(distanceMatrix: DenseMatrix[Double],
+                                                   localScale: DenseVector[Double]): DenseMatrix[Double] = {
     val affinityMatrix = DenseMatrix.zeros[Double](distanceMatrix.rows, distanceMatrix.cols) // Distance matrix, size rows x cols.
 
     for (i <- 0 until distanceMatrix.rows) {
@@ -183,7 +183,7 @@ object STSC {
     * @param scaledMatrix the matrix that needs to be normalized
     * @return the normalized matrix
     */
-  private[stsc] def normalizedAffinityMatrix(scaledMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
+  private[cluster] def normalizedAffinityMatrix(scaledMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
     val diagonalVector = DenseVector.tabulate(scaledMatrix.rows) { i => 1 / sqrt(sum(scaledMatrix(i, ::))) } // Sum of each row, then power -0.5.
     val normalizedMatrix = DenseMatrix.zeros[Double](scaledMatrix.rows, scaledMatrix.cols)
 
@@ -202,7 +202,7 @@ object STSC {
     * @param eigenvectors the eigenvectors
     * @return the cost of the best rotation and the rotation as a DenseMatrix.
     */
-  private[stsc] def bestRotation(eigenvectors: DenseMatrix[Double]): (Double, DenseMatrix[Double]) = {
+  private[cluster] def bestRotation(eigenvectors: DenseMatrix[Double]): (Double, DenseMatrix[Double]) = {
     var nablaJ, newCost = 0.0
     var cost, old1Cost, old2Cost = j(eigenvectors)
 
@@ -244,15 +244,15 @@ object STSC {
     * @param matrix the rotation to analyze
     * @return the cost, the bigger the better (generally less than 1)
     */
-  private[stsc] def j(matrix: DenseMatrix[Double]): Double = {
+  private[cluster] def j(matrix: DenseMatrix[Double]): Double = {
     val squareMatrix = matrix *:* matrix
     val sumVector = Util.sumCols(squareMatrix)
     val maxVector = max(squareMatrix(*, ::))
     sum(sumVector / maxVector) // Sum of the sum of each row divided by the max of each row.
   }
 
-  private[stsc] def numericalQualityGradient(matrix: DenseMatrix[Double], theta: DenseVector[Double],
-                                             k: Int, h: Double): Double = {
+  private[cluster] def numericalQualityGradient(matrix: DenseMatrix[Double], theta: DenseVector[Double],
+                                                k: Int, h: Double): Double = {
     theta(k) = theta(k) + h
     val upRotation = givensRotation(matrix, theta)
     theta(k) = theta(k) - 2 * h // -2 * because we cancel the previous operation.
@@ -266,7 +266,7 @@ object STSC {
     * @param theta  the angle of the rotation
     * @return the Givens rotation
     */
-  private[stsc] def givensRotation(matrix: DenseMatrix[Double], theta: DenseVector[Double]): DenseMatrix[Double] = {
+  private[cluster] def givensRotation(matrix: DenseMatrix[Double], theta: DenseVector[Double]): DenseMatrix[Double] = {
     // Find the coordinate planes (i, j).
     var i, j = 0
     val ij = List.fill(theta.length) {

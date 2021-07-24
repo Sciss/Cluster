@@ -1,8 +1,8 @@
-package de.sciss.stsc.test.st
+package de.sciss.cluster.test.st
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
-import de.sciss.stsc.STSC
+import de.sciss.cluster.STSC
 import org.scalameter._
 import org.scalatest.funsuite.AnyFunSuite
 

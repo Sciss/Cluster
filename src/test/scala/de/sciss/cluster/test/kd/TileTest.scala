@@ -1,7 +1,7 @@
-package de.sciss.stsc.test.kd
+package de.sciss.cluster.test.kd
 
 import breeze.linalg.DenseVector
-import de.sciss.stsc.Tile
+import de.sciss.cluster.Tile
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

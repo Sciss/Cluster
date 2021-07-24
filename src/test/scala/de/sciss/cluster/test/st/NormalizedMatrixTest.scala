@@ -1,7 +1,7 @@
-package de.sciss.stsc.test.st
+package de.sciss.cluster.test.st
 
 import breeze.linalg.DenseMatrix
-import de.sciss.stsc.STSC
+import de.sciss.cluster.STSC
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

@@ -1,4 +1,4 @@
-package de.sciss.stsc
+package de.sciss.cluster
 
 import breeze.linalg.{*, BitVector, DenseMatrix, DenseVector, Transpose}
 import breeze.numerics.abs

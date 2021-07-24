@@ -1,7 +1,7 @@
-package de.sciss.stsc.test.kd
+package de.sciss.cluster.test.kd
 
 import breeze.linalg.DenseMatrix
-import de.sciss.stsc.KDTree
+import de.sciss.cluster.KDTree
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

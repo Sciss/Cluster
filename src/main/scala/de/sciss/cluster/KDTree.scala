@@ -1,4 +1,4 @@
-package de.sciss.stsc
+package de.sciss.cluster
 
 import breeze.linalg.{*, BitVector, DenseMatrix, DenseVector, argmax, csvread, csvwrite, max, min, sum}
 import breeze.numerics.abs
@@ -185,7 +185,7 @@ object KDTree {
     * @param tilesDM the matrix representing the kd tree.
     * @return the kd tree.
     */
-  private[stsc] def fromMatrix(tilesDM: DenseMatrix[Double]): KDTree = {
+  private[cluster] def fromMatrix(tilesDM: DenseMatrix[Double]): KDTree = {
     if (tilesDM.cols % 2 != 0) {
       throw new IndexOutOfBoundsException("The file is not formatted to be a kd tree.")
     }
@@ -276,8 +276,8 @@ object KDTree {
     * @param cutFunction     the anonymous function used to cut the paren tile.
     * @return the value of the KDTree (thus a Node)
     */
-  private[stsc] def cutWithMaxObservations(dataset: DenseMatrix[Double], parentTile: Tile, maxObservations: Int,
-                                           cutFunction: (Tile, DenseMatrix[Double]) => (Tile, Tile)): Node = {
+  private[cluster] def cutWithMaxObservations(dataset: DenseMatrix[Double], parentTile: Tile, maxObservations: Int,
+                                              cutFunction: (Tile, DenseMatrix[Double]) => (Tile, Tile)): Node = {
     val observations = parentTile.filter(dataset, 0)
     if (observations.rows > maxObservations) {
       val childrenTiles = cutFunction(parentTile, observations)

@@ -1,8 +1,8 @@
-package de.sciss.stsc.test
+package de.sciss.cluster.test
 
 import breeze.linalg.DenseMatrix
-import de.sciss.stsc.STSC
-import de.sciss.stsc.STSC.Result
+import de.sciss.cluster.STSC
+import de.sciss.cluster.STSC.Result
 
 import java.awt.geom.Ellipse2D
 import java.awt.{Color, Dimension, EventQueue, Graphics, Graphics2D, GridLayout, RenderingHints}

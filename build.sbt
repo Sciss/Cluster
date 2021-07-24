@@ -1,4 +1,4 @@
-lazy val baseName       = "stsc"
+lazy val baseName       = "Cluster"
 lazy val baseNameL      = baseName.toLowerCase
 lazy val projectVersion = "0.1.0-SNAPSHOT"
 
@@ -14,7 +14,7 @@ lazy val root = project.in(file("."))
   .settings(
     name                := baseName,
     homepage            := Some(url(s"https://$gitRepoHost/$gitRepoUser/$baseName")),
-    description         := "A framework for creating and managing ScalaCollider based sound processes",
+    description         := "A data clustering library",
     licenses            := Seq("LGPL v2.1+" -> url("http://www.gnu.org/licenses/lgpl-2.1.txt")),
     scalaVersion        := "2.13.6",
     crossScalaVersions  := Seq(/*"3.0.1",*/ "2.13.6", "2.12.14"), // Breeze currently not available for Scala 3
