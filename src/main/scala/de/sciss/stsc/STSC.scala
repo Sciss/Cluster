@@ -112,7 +112,7 @@ object STSC {
     }
 
     val orderedCosts = SortedMap(costs.toSeq: _*) // Order the costs.
-    val absoluteRotatedEigenvectors = SparkIsNotABreeze.getSomeAbs(bestRotatedEigenvectors)
+    val absoluteRotatedEigenvectors = Util.getSomeAbs(bestRotatedEigenvectors)
     // The alignment result (step 8), conversion to array due to https://issues.scala-lang.org/browse/SI-9578
     val z = argmax(absoluteRotatedEigenvectors(*, ::)).toArray
     Result(cBest, orderedCosts, z)
@@ -246,7 +246,7 @@ object STSC {
     */
   private[stsc] def j(matrix: DenseMatrix[Double]): Double = {
     val squareMatrix = matrix *:* matrix
-    val sumVector = SparkIsNotABreeze.sumCols(squareMatrix)
+    val sumVector = Util.sumCols(squareMatrix)
     val maxVector = max(squareMatrix(*, ::))
     sum(sumVector / maxVector) // Sum of the sum of each row divided by the max of each row.
   }
